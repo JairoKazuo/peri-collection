@@ -1,75 +1,59 @@
 "use client"
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { CheckCircle, XCircle } from "lucide-react"
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
+
+  const handleLogin = () => {
+    const storedUser = localStorage.getItem("userData")
+    if (!storedUser) {
+      setError("No se encontró ninguna cuenta registrada.")
+      return
+    }
+
+    const user = JSON.parse(storedUser)
+    if (email === user.email && password === user.password) {
+      setError("")
+      setSuccess(true)
+      localStorage.setItem("activeUser", JSON.stringify(user))
+      setTimeout(() => router.push("/customer/account"), 1500)
+    } else {
+      setError("Correo o contraseña incorrectos.")
+    }
+  }
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="space-y-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-foreground mb-2">Iniciar Sesión</h1>
-            <p className="text-muted-foreground">Accede a tu cuenta de PERI</p>
-          </div>
-
-          <form className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Correo Electrónico</label>
-              <input
-                type="email"
-                placeholder="tu@ejemplo.com"
-                className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Contraseña</label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="remember" className="rounded border-border" />
-              <label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
-                Recuérdame
-              </label>
-            </div>
-            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium">
-              Iniciar Sesión
-            </Button>
-          </form>
-
-          <div className="space-y-3">
-            <Link href="/customer/password-recovery">
-              <Button variant="ghost" className="w-full text-accent hover:text-accent/90">
-                ¿Olvidaste tu contraseña?
-              </Button>
-            </Link>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground">O</span>
-            </div>
-          </div>
-
-          <div className="text-center">
-            <p className="text-muted-foreground mb-3">
-              ¿No tienes cuenta?{" "}
-              <Link href="/customer/register" className="text-accent font-semibold hover:underline">
-                Regístrate aquí
-              </Link>
-            </p>
-          </div>
+    <div className="max-w-md mx-auto px-4 py-10">
+      <h1 className="text-3xl font-bold text-foreground text-center mb-6">Iniciar sesión</h1>
+      {error && (
+        <div className="flex items-center gap-2 text-red-600 text-sm mb-4">
+          <XCircle className="w-4 h-4" /> {error}
         </div>
+      )}
+      {success && (
+        <div className="flex items-center gap-2 text-green-600 text-sm mb-4">
+          <CheckCircle className="w-4 h-4" /> Inicio de sesión exitoso
+        </div>
+      )}
+      <div className="space-y-4">
+        <input type="email" placeholder="Correo electrónico" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg bg-card" />
+        <input type="password" placeholder="Contraseña" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-4 py-3 border border-border rounded-lg bg-card" />
+        <Button onClick={handleLogin} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium">Ingresar</Button>
+        <p className="text-center text-sm text-muted-foreground">
+          ¿No tienes cuenta? <Link href="/customer/register" className="text-accent hover:underline">Regístrate aquí</Link>
+        </p>
+        <p className="text-center text-sm text-muted-foreground">
+          <Link href="/customer/forgot-password" className="text-accent hover:underline">¿Olvidaste tu contraseña?</Link>
+        </p>
       </div>
     </div>
   )
