@@ -3,23 +3,26 @@
 import type React from "react"
 
 import { useState } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const router = useRouter()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    router.push("/admin/dashboard")
+
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-start justify-center p-4 pt-20">
       <Card className="w-full max-w-md p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">PERI</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">PERI COLLECTION</h1>
           <p className="text-muted-foreground">Panel de Administración</p>
         </div>
 
@@ -48,13 +51,6 @@ export default function AdminLoginPage() {
 
           <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90">Iniciar Sesión</Button>
         </form>
-
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          ¿Olvidaste tu contraseña?{" "}
-          <Link href="/admin/password-recovery" className="text-accent hover:underline">
-            Recupérala aquí
-          </Link>
-        </p>
       </Card>
     </div>
   )

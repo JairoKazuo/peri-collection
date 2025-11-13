@@ -10,12 +10,12 @@ export default function Home() {
           <p className="text-xl text-muted-foreground">Luxury Fashion E-Commerce Platform</p>
 
           <div className="flex gap-4 justify-center pt-8">
-            <Link href="/customer/catalog">
+            <Link href="/customer">
               <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 Shop Now
               </Button>
             </Link>
-            <Link href="/admin/dashboard">
+            <Link href="/admin/login">
               <Button size="lg" variant="outline">
                 Admin Portal
               </Button>

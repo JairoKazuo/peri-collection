@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   LayoutDashboard,
   Package,
@@ -31,6 +31,12 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    router.push("/admin/login")
+  }
+
 
   return (
     <aside className="w-64 border-r border-border bg-sidebar min-h-screen flex flex-col">
@@ -74,7 +80,11 @@ export function AdminSidebar() {
           <Settings className="w-5 h-5" />
           <span className="font-medium text-sm">Configuración</span>
         </Link>
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors">
+        <button 
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        >
           <LogOut className="w-5 h-5" />
           <span className="font-medium text-sm">Cerrar Sesión</span>
         </button>
