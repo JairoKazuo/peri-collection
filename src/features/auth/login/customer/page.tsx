@@ -3,9 +3,15 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useLoginForm } from "@/features/auth/hooks/useLoginForm"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
+  const { register, handleSubmit, errors, isLoading, loginError } = useLoginForm()
+
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
@@ -16,31 +22,89 @@ export default function LoginPage() {
             <p className="text-muted-foreground">Accede a tu cuenta de PERI</p>
           </div>
 
-          <form className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Correo Electrónico</label>
-              <input
+          {loginError && (
+            <Alert>
+              <AlertTitle>¡Error!</AlertTitle>
+              <AlertDescription>{loginError}</AlertDescription>
+            </Alert>
+          )}
+
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
+              <label 
+                htmlFor="email"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
+                Correo Electrónico
+              </label>
+              <Input
                 type="email"
-                placeholder="tu@ejemplo.com"
-                className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
+                id="email-input"
+                placeholder="Ingresa tu correo electrónico"
+                {...register("email")}
+                disabled={isLoading}
+                aria-invalid={!!errors.email}
               />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">Contraseña</label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-              />
+            <div className="space-y-2">
+              <label 
+                htmlFor="password"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
+                Contraseña
+              </label>
+              <div className="relative">
+                <Input
+                  id="password-input"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Ingresa tu contraseña"
+                  {...register("password")}
+                  disabled={isLoading}
+                  aria-invalid={!!errors.password}
+                />
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="remember" className="rounded border-border" />
+            <div className="flex items-center gap-2 space-y-2">
+              <Input type="checkbox" id="remember" className="rounded border-border mt-1" />
               <label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
                 Recuérdame
               </label>
             </div>
-            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium">
-              Iniciar Sesión
+            <Button 
+              type="submit"
+              className="w-full 
+                         bg-primary text-primary-foreground
+                         hover:bg-primary/90 py-3 font-medium"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Iniciando Sesión...
+                </>
+              ) : (
+                "Iniciar Sesión"
+              )}
             </Button>
           </form>
 
