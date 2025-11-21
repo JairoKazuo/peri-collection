@@ -31,13 +31,22 @@ export function useLoginForm() {
     setLoginError(null);
 
     try {
+      console.log("Payload enviado a loginUser:", data);
       console.log("Login payload enviado al backend:", data);
       const response = await auth.loginUser(data);
       console.log("Response: ", response);
 
+      // auth.loginUser ya devuelve response.data del backend
+      const status = (response as any)?.status;
+      const user = (response as any)?.user;
+
       // Si el backend responde con éxito, redirigir al dashboard del cliente
-      if ((response as any)?.status === "success") {
-        router.push("/customer/account");
+      if (status === "success") {
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+
+        router.push("/customer/account/personalInfo");
       }
     } catch (error) {
       console.error("Error capturado durante el inicio de sesion: ", error);

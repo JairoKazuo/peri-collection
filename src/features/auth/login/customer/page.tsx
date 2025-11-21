@@ -108,11 +108,9 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="space-y-3">
-            <Link href="/customer/password-recovery">
-              <Button variant="ghost" className="w-full text-accent hover:text-accent/90">
+          <div className="text-center space-y-3">
+            <Link href="/customer/password-recovery" className="text-accent hover:text-accent/90">
                 ¿Olvidaste tu contraseña?
-              </Button>
             </Link>
           </div>
 

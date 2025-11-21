@@ -6,11 +6,15 @@ import { useState } from "react"
 import type React from "react"
 // Asegúrate de que la ruta sea correcta
 import { Input } from '@/components/ui/input';
-import { register as registerService } from "@/features/auth/services/auth.service";
+//import { register as registerService } from "@/features/auth/services/auth.service";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { useRegisterForm } from "@/features/auth/hooks/useRegisterForm";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function RegisterPage() {
+
+  /*
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -73,6 +77,16 @@ export default function RegisterPage() {
       setLoading(false)
     }
   }
+  */
+
+  const router = useRouter()
+
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  const { register, handleSubmit, errors, isLoading, registerError } = useRegisterForm()
+
+
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
@@ -83,6 +97,13 @@ export default function RegisterPage() {
             <p className="text-muted-foreground">Únete a PERI COLLECTION hoy</p>
           </div>
 
+          {registerError && (
+            <Alert>
+              <AlertTitle>¡Error!</AlertTitle>
+              <AlertDescription>{registerError}</AlertDescription>
+            </Alert>
+          )}
+
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
               <label
@@ -92,11 +113,13 @@ export default function RegisterPage() {
                 type="text"
                 id="full-name-input"
                 placeholder="Ingresa tu nombre completo"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                disabled={loading}
+                {...register("nombre_usuario")}
+                disabled={isLoading}
+                aria-invalid={!!errors.nombre_usuario}
               />
+              {errors.nombre_usuario && (
+                <p className="text-red-500 text-xs mt-1">{errors.nombre_usuario.message}</p>
+              )}
             </div>
             <div>
               <label 
@@ -109,11 +132,13 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="Ingresa un correo"
                 id="email-input"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={loading}
+                {...register("email")}
+                disabled={isLoading}
+                aria-invalid={!!errors.email}
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+              )}
             </div>
             <div>
               <label 
@@ -122,7 +147,11 @@ export default function RegisterPage() {
               >
                 Documento
               </label>
-              <select id="tipo-documento" name="documentType" value={formData.documentType} onChange={handleChange} disabled={loading}>
+              <select 
+                id="tipo-documento"
+                {...register("tipo_doc")}
+                disabled={isLoading}
+              >
                 <option value="DNI">DNI</option>
                 <option value="CE">CE</option>
               </select>
@@ -130,11 +159,13 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="Ingresa tu documento de identidad"
                 id="document-input"
-                name="document"
-                value={formData.document}
-                onChange={handleChange}
-                disabled={loading}
+                {...register("documento")}
+                disabled={isLoading}
+                aria-invalid={!!errors.documento}
               />
+              {errors.documento && (
+                <p className="text-red-500 text-xs mt-1">{errors.documento.message}</p>
+              )}
             </div>
             <div>
               <label
@@ -147,11 +178,13 @@ export default function RegisterPage() {
                 type="tel"
                 placeholder="Ingresa tu número de celular"
                 id="celular-input"
-                name="celular"
-                value={formData.celular}
-                onChange={handleChange}
-                disabled={loading}
+                {...register("telefono")}
+                disabled={isLoading}
+                aria-invalid={!!errors.telefono}
               />
+              {errors.telefono && (
+                <p className="text-red-500 text-xs mt-1">{errors.telefono.message}</p>
+              )}
             </div>
             <div>
               <label   
@@ -166,17 +199,16 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Ingrese una contraseña"
                   id="password-input"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  disabled={loading}
+                  {...register("password")}
+                  disabled={isLoading}
                   className="pr-10"
+                  aria-invalid={!!errors.password}
                 />
                 <Button
                   type="button"
-                  onClick={togglePasswordVisibility}
-                  disabled={loading}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </Button>
@@ -194,17 +226,16 @@ export default function RegisterPage() {
                   type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirme su contraseña"
                   id="confirm-password-input"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  disabled={loading}
+                  {...register("confirmPassword")}
+                  disabled={isLoading}
                   className="pr-10"
+                  aria-invalid={!!errors.confirmPassword}
                 />
                 <Button
                   type="button"
-                  onClick={toggleConfirmPasswordVisibility}
-                  disabled={loading}
-                  className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isLoading}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
                 >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </Button>
@@ -216,10 +247,10 @@ export default function RegisterPage() {
                 Acepto los términos y condiciones de PERI COLLECTION
               </label>
             </div>
-            {error && (
-              <p className="text-sm text-red-500">{error}</p>
+            {registerError && (
+              <p className="text-sm text-red-500">{registerError}</p>
             )}
-            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium" disabled={loading}>
+            <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium" disabled={isLoading}>
               Crear Cuenta
             </Button>
           </form>

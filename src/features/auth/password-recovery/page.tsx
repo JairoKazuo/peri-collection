@@ -2,11 +2,22 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
 import { ArrowLeft } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { useRecoveryForm } from "@/features/auth/hooks/useRecoveryForm"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { useState } from "react"
 
 export default function PasswordRecoveryPage() {
-  const [step, setStep] = useState<"email" | "code" | "reset">("email")
+  const [showPassword, setShowPassword] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    errors,
+    isLoading,
+    errorMessage,
+    successMessage,
+  } = useRecoveryForm()
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
@@ -17,41 +28,78 @@ export default function PasswordRecoveryPage() {
         </Link>
 
         <div className="space-y-8">
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-foreground mb-2">Recuperar Contraseña</h1>
-            <p className="text-muted-foreground">Te ayudaremos a recuperar el acceso a tu cuenta</p>
+            <p className="text-muted-foreground">
+              Te ayudaremos a recuperar el acceso a tu cuenta
+            </p>
           </div>
 
-          {step === "email" && (
-            <form className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">Correo Electrónico</label>
-                <input
-                  type="email"
-                  placeholder="tu@ejemplo.com"
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                />
-              </div>
-              <Button
-                type="button"
-                onClick={() => setStep("code")}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium"
-              >
-                Enviar Código
-              </Button>
-            </form>
+          {errorMessage && (
+            <p className="text-sm text-red-500">{errorMessage}</p>
           )}
 
+          {successMessage && (
+            <p className="text-sm text-green-600">{successMessage}</p>
+          )}
+
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Correo Electrónico</label>
+              <Input
+                type="email"
+                placeholder="Ingresa tu correo electrónico"
+                {...register("email")}
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Nueva Contraseña</label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Ingrese una nueva contraseña"
+                  {...register("nueva_contrasena")}
+                  disabled={isLoading}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              {errors.nueva_contrasena && (
+                <p className="text-xs text-red-500 mt-1">{errors.nueva_contrasena.message}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium"
+            >
+              {isLoading ? "Procesando..." : "Restaurar Contraseña"}
+            </Button>
+          </form>
+
+          {/*}
           {step === "code" && (
             <form className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Código de Verificación</label>
                 <p className="text-sm text-muted-foreground mb-3">Ingresa el código que enviamos a tu correo</p>
-                <input
+                <Input
                   type="text"
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all text-center text-2xl tracking-widest"
                 />
               </div>
               <Button
@@ -63,12 +111,13 @@ export default function PasswordRecoveryPage() {
               </Button>
             </form>
           )}
-
+          */}
+          {/*
           {step === "reset" && (
             <form className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Nueva Contraseña</label>
-                <input
+                <Input
                   type="password"
                   placeholder="••••••••"
                   className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
@@ -76,7 +125,7 @@ export default function PasswordRecoveryPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Confirmar Contraseña</label>
-                <input
+                <Input
                   type="password"
                   placeholder="••••••••"
                   className="w-full px-4 py-3 border border-border rounded-lg bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
@@ -87,6 +136,8 @@ export default function PasswordRecoveryPage() {
               </Button>
             </form>
           )}
+
+          */}
         </div>
       </div>
     </div>

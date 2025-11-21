@@ -31,7 +31,7 @@ export function CustomerHeader() {
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-2">
-            <Link href="/customer/login">
+            <Link href="/customer/account/personalInfo">
               <Button variant="ghost" size="sm" className="gap-2">
                 <User className="w-5 h-5" />
                 <span className="text-sm">Mi Cuenta</span>
@@ -67,7 +67,7 @@ export function CustomerHeader() {
                 Catálogo
               </Button>
             </Link>
-            <Link href="/customer/account" className="block">
+            <Link href="/customer/account/personalInfo" className="block">
               <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
                 <User className="w-5 h-5" />
                 Mi Cuenta
