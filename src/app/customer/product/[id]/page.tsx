@@ -1,17 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, use } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart, Share2, ChevronLeft, ChevronRight } from "lucide-react"
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params)
   const [selectedSize, setSelectedSize] = useState("M")
   const [quantity, setQuantity] = useState(1)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const product = {
-    id: params.id,
+    id: resolvedParams.id,
     name: "Blazer Clásico Premium",
     price: "S/ 299",
     rating: 4.8,

@@ -10,8 +10,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "PERI COLLECTION - Fashion E-Commerce",
-  description: "Luxury fashion e-commerce platform",
-  generator: "v0.app",
+  description: "Somos una Marca Peruana creada por el Diseñador de Moda",
 }
 
 export default function RootLayout({
