@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Filter, X } from "lucide-react"
+import { useFetchProducts } from "@/hooks/useFetchProducts"
+import { Loader2 } from "lucide-react"
 
 export default function CatalogPage() {
   const [showFilters, setShowFilters] = useState(false)
@@ -14,14 +16,9 @@ export default function CatalogPage() {
     price: [] as string[],
   })
 
-  const products = [
-    { id: 1, name: "Blazer Clásico", price: "S/ 299", category: "Blazers", color: "Negro", size: "M" },
-    { id: 2, name: "Vestido de Seda", price: "S/ 399", category: "Vestidos", color: "Blanco", size: "S" },
-    { id: 3, name: "Jeans Premium", price: "S/ 199", category: "Pantalones", color: "Azul", size: "M" },
-    { id: 4, name: "Chaqueta de Cuero", price: "S/ 599", category: "Blazers", color: "Negro", size: "L" },
-    { id: 5, name: "Vestido de Noche", price: "S/ 799", category: "Vestidos", color: "Dorado", size: "M" },
-    { id: 6, name: "Suéter de Cachemira", price: "S/ 349", category: "Tops", color: "Beige", size: "M" },
-  ]
+  
+
+  const { products, isLoading, error } = useFetchProducts()
 
   const toggleFilter = (type: string, value: string) => {
     setSelectedFilters((prev) => ({
@@ -30,6 +27,34 @@ export default function CatalogPage() {
         ? prev[type as keyof typeof prev].filter((v) => v !== value)
         : [...prev[type as keyof typeof prev], value],
     }))
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-red-500">Error al cargar el catálogo: {error}</p>
+      </div>
+    );
+  }
+
+  console.log("Productos en CatalogPage:", products);
+
+  if (products.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground">
+          No hay productos disponibles en el catálogo.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -132,18 +157,18 @@ export default function CatalogPage() {
         <div className="md:col-span-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => (
-              <Link key={product.id} href={`/customer/product/${product.id}`}>
+              <Link key={product.id_prenda } href={`/customer/product/${product.id_prenda}`}>
                 <div className="border border-border rounded-xl overflow-hidden hover:shadow-lg transition-all cursor-pointer group">
                   <div className="w-full h-64 bg-secondary group-hover:bg-secondary/80 transition-colors flex items-center justify-center">
                     <div className="text-6xl">👗</div>
                   </div>
                   <div className="p-4">
-                    <p className="text-xs text-accent font-semibold mb-1 uppercase">{product.category}</p>
+                    <p className="text-xs text-accent font-semibold mb-1 uppercase">{product.categoria_prendas}</p>
                     <h3 className="font-semibold text-foreground mb-2 group-hover:text-accent transition-colors">
-                      {product.name}
+                      {product.nombre_prenda}
                     </h3>
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-foreground">{product.price}</span>
+                      <span className="text-lg font-bold text-foreground">S/{product.precio_prenda}</span>
                       <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                         Ver
                       </Button>
