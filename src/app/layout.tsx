@@ -23,6 +23,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         {children}
         <Analytics />
+        <div id="modal-root" />
       </body>
     </html>
   )

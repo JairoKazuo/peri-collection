@@ -12,6 +12,7 @@ export const ClientPersonalInfoSchema = z.object({
 export type ClientPersonalInfo = z.infer<typeof ClientPersonalInfoSchema>
 
 export const ClientDirectionSchema = z.object({
+    id_direccion: z.number(),
     calle: z.string(),
     departamento: z.string(),
     provincia: z.string(),

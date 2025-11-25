@@ -2,6 +2,7 @@
 
 import { useFetchClientsInfo } from "@/hooks/useFetchClients"
 import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function PaymentMethodsPage() {
     const { paymentMethods, isLoading, error } = useFetchClientsInfo()
@@ -17,15 +18,24 @@ export default function PaymentMethodsPage() {
 
     if (error){
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-red-500">Error al cargar las direcciones</p>
+            <div className="space-y-4">
+                <h2 className="text-2xl font-semibold text-foreground mb-2">Mis Metodos de Pago</h2>
+                <div className="flex items-center justify-center h-screen">
+                    <p className="text-red-500">Error al cargar las direcciones</p>
+                </div>
             </div>
         )
     }
     if (paymentMethods.length === 0){
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-red-500">No hay metodos de pago</p>
+            <div className="space-y-4">
+                <h2 className="text-2xl font-semibold text-foreground mb-2">Mis Metodos de Pago</h2>
+                <div className="flex items-center justify-center h-screen">
+                    <p className="text-red-500">No hay metodos de pago</p>
+                    <Button>
+                        Agregar metodo de pago
+                    </Button>
+                </div>
             </div>
         )
     }

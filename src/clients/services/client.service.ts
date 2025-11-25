@@ -59,6 +59,7 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
             const raw = response.data?.direcciones ?? [];
 
             const mapped: ClientDirection[] = raw.map((dir) => ({
+                id_direccion: dir.id_direccion,
                 calle: dir.calle,
                 departamento: dir.departamento,
                 provincia: dir.provincia,
@@ -124,4 +125,40 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
             throw error;
         }
     },
+    async updatePersonalInfo(payload: { nombres_completos: string; apellidos_completos: string }) {
+        const response = await API_CLIENT.put<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.updatePersonalInfo, payload);
+
+        return response.data;
+    },
+    async updatePhone(payload: { telefono: string }) {
+        const response = await API_CLIENT.put<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.updatePhone, payload);
+
+        return response.data;
+    },
+    
+    async insertDirection(payload: { pais: string; departamento: string; provincia: string; distrito: string; calle: string; es_predeterminada: boolean }) {
+        const response = await API_CLIENT.post<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.insertDirection, payload);
+
+        return response.data;
+    },
+
+    async deleteDirection(id_direccion: number) {
+        return API_CLIENT.delete(CLIENT_ENDPOINTS.deleteDirection, {
+            data: { id_direccion },
+        });
+    },
 })
+
+
