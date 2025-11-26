@@ -90,7 +90,9 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
                 code: number;
                 message: string;
                 metodos_pago: Array<{
+                    id_metodo_pago: number;
                     tipo: "C" | "D";
+                    marca: string;
                     numero: string;
                     ultimos_digitos: string;
                     fecha_vencimiento: string; // viene como string desde el backend
@@ -102,7 +104,9 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
             const raw = (response.data as any)?.metodos_pago ?? [];
 
             const mapped: ClientMethodPayment[] = raw.map((method: any) => ({
+                id_metodo_pago: method.id_metodo_pago,
                 tipo: method.tipo,
+                marca: method.marca,
                 numero: method.numero,
                 ultimos_digitos: method.ultimos_digitos,
                 fecha_vencimiento: new Date(method.fecha_vencimiento),

@@ -133,10 +133,9 @@ export default function DirectionsPage() {
                             <div className="flex items-center justify-between mb-4">
                                 <div>
                                     <h3 className="font-semibold text-foreground">{direction.calle}</h3>
-                                    <p className="text-sm text-muted-foreground">{direction.departamento}</p>
+                                    <p className="text-sm text-muted-foreground">{direction.departamento + ", " + direction.provincia + ", " + direction.distrito}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-semibold text-foreground">{direction.distrito}</p>
                                     <div className="mt-2 flex items-center justify-end gap-2">
                                         {direction.es_predeterminada && (
                                             <span className="text-xs px-2 py-1 rounded-full bg-emerald-100 text-emerald-700">

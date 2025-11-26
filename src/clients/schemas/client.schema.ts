@@ -24,7 +24,9 @@ export const ClientDirectionSchema = z.object({
 export type ClientDirection = z.infer<typeof ClientDirectionSchema>
 
 export const ClientMethodPaymentSchema = z.object({
+    id_metodo_pago: z.number(),
     tipo: z.enum(["C", "D"]),
+    marca: z.string(),
     numero: z.string(),
     ultimos_digitos: z.string(),
     fecha_vencimiento: z.date(),

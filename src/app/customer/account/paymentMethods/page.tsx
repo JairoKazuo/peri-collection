@@ -2,15 +2,22 @@
 
 import Image from "next/image"
 import { useFetchClientsInfo } from "@/hooks/useFetchClients"
-import { Loader2, Plus, CreditCard } from "lucide-react"
+import { Loader2, Plus, CreditCard, Trash } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useApiClient } from "@/lib/api/useApiClient"
 import { useMemo } from "react"
+import type React from "react"
 import { makeClientService } from "@/clients/services/client.service"
 import { useState } from "react"
 
 import Modal from "./modal"
 import Visa from "@/assets/visa.svg"
+import Mastercard from "@/assets/mastercard.svg"
+import AmericanExpress from "@/assets/americanExpress.svg"
+import Discover from "@/assets/discover.svg"
+import UnionPay from "@/assets/unionPay.svg"
+import JCB from "@/assets/jcb.svg"
+import DinersClubInternational from "@/assets/dinersClub.svg"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -45,7 +52,6 @@ export default function PaymentMethodsPage() {
     const { paymentMethods, isLoading, error } = useFetchClientsInfo()
 
     const [isMethodModalOpen, setIsMethodModalOpen] = useState(false)
-    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
     const [tipo, setTipo] = useState<"C" | "D">("C")
     const [marca, setMarca] = useState<string>("")
 
@@ -55,7 +61,11 @@ export default function PaymentMethodsPage() {
     const [es_predeterminado, setEsPredeterminado] = useState(false)
     const [saving, setSaving] = useState(false)
     const [paymentMethodError, setPaymentMethodError] = useState<string | null>(null)
-    const [paymentMethodToDelete, setPaymentMethodToDelete] = useState(false)
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
+    const [methodPageToDelete, setMethodPageToDelete] = useState<{
+        id_metodo_pago: number
+        tipo: "C" | "D"
+    } | null>(null)
 
     const openMethodModal = (cardType: "C" | "D") => {
         setTipo(cardType)
@@ -74,7 +84,7 @@ export default function PaymentMethodsPage() {
         AmericanExpress = "AMERICAN EXPRESS",
         Discover = "DISCOVER",
         UnionPay = "UNION PAY",
-        JCB = "JCB",
+        Jcb = "JCB",
         DinersClubInternational = "DINERS CLUB INTERNATIONAL"
     }
 
@@ -140,6 +150,17 @@ export default function PaymentMethodsPage() {
             }
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleDeletePaymentMethod = async (id: number) => {
+        try {
+            await clientService.deletePaymentMethod(id)
+            if (typeof window !== "undefined") {
+                window.location.reload()
+            }
+        } catch (err) {
+            console.error(err)
         }
     }
 
@@ -211,7 +232,6 @@ export default function PaymentMethodsPage() {
                             </Button>
                         </div>
                     </div>
-                
                 </>
 
             ) : (
@@ -238,24 +258,97 @@ export default function PaymentMethodsPage() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {creditMethods.map((paymentMethod, index) => (
-                                    <div key={index} className="border border-border rounded-xl p-6 bg-card">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div>
-                                                <h3 className="font-semibold text-foreground">**** **** **** {paymentMethod.ultimos_digitos}</h3>
-                                                <p className="text-sm text-muted-foreground">{paymentMethod.fecha_vencimiento.toLocaleString("en-US",
-                                                    {
-                                                        month: "short",
-                                                        year: "numeric"
-                                                    }
-                                                )}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold text-foreground">{paymentMethod.codigo_seguridad}</p>
-                                            </div>
-                                        </div>
+                                <div className="border border-border rounded-xl p-6 bg-card">
+                                    <div className="card-container">
+                                        <table className="w-full text-left text-sm">
+                                            <thead>
+                                                <tr className="border-b">
+                                                    <th className="py-2 pr-4 w-28">Preferido</th>
+                                                    <th className="py-2 pr-4 w-40">Marca</th>
+                                                    <th className="py-2 pr-4 w-48">Últimos dígitos</th>
+                                                    <th className="py-2 pr-4 w-48">Fecha de vencimiento</th>
+                                                    <th className="py-2 text-right w-32">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {creditMethods.map((paymentMethod, index) => (
+                                                    <tr key={index}>
+                                                        <td className="preferida-col py-2 pr-4 align-middle">
+                                                            <input type="radio" name="prefer" onChange={() => setEsPredeterminado(true)}/>
+                                                        </td>
+                                                        <td className="py-2 pr-4 align-middle">
+                                                            <div className="flex items-center gap-2">
+                                                                {paymentMethod.marca === Marcas.Visa && (
+                                                                    <Image src={Visa} alt="Visa" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Mastercard && (
+                                                                    <Image src={Mastercard} alt="Mastercard" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.AmericanExpress && (
+                                                                    <Image src={AmericanExpress} alt="American Express" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Discover && (
+                                                                    <Image src={Discover} alt="Discover" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.UnionPay && (
+                                                                    <Image src={UnionPay} alt="Union Pay" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Jcb && (
+                                                                    <Image src={JCB} alt="JCB" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.DinersClubInternational && (
+                                                                    <Image
+                                                                        src={DinersClubInternational}
+                                                                        alt="Diners Club"
+                                                                        width={32}
+                                                                        height={20}
+                                                                        className="w-8 h-auto"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="ultimos-digitos-col py-2 pr-4 align-middle">
+                                                            xxxx xxxx xxxx {paymentMethod.ultimos_digitos.toString().slice(-4)}
+                                                        </td>
+                                                        <td className="fecha-vencimiento-col py-2 pr-4 align-middle">
+                                                            {paymentMethod.fecha_vencimiento.toLocaleString("en-US",
+                                                                {
+                                                                    month: "short",
+                                                                    year: "numeric"
+                                                                }
+                                                            )}
+                                                        </td>
+                                                        <td className="py-2 text-right align-middle">
+                                                            <Button
+                                                                id="delete-credit-card"
+                                                                variant="outline"
+                                                                size="icon"
+                                                                className="ml-2 cursor-pointer"
+                                                                onClick={() => {
+                                                                    setMethodPageToDelete({
+                                                                        id_metodo_pago: paymentMethod.id_metodo_pago,
+                                                                        tipo: paymentMethod.tipo
+                                                                    })
+                                                                    setIsConfirmDeleteOpen(true)
+                                                                }}>
+                                                                <Trash className="w-4 h-4 mr-1" />
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                ))}
+                                </div>
+
+                                <div className="flex justify-end">
+                                    <Button
+                                        className="ml-2"
+                                        onClick={() => setIsMethodModalOpen(true)}>
+                                        <Plus className="w-4 h-4 mr-1" />
+                                        Agregar Tarjeta
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -282,24 +375,98 @@ export default function PaymentMethodsPage() {
                             </div>
                         ) : (
                             <div className="space-y-4">
-                                {debitMethods.map((paymentMethod, index) => (
-                                    <div key={index} className="border border-border rounded-xl p-6 bg-card">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div>
-                                                <h3 className="font-semibold text-foreground">**** **** **** {paymentMethod.ultimos_digitos}</h3>
-                                                <p className="text-sm text-muted-foreground">{paymentMethod.fecha_vencimiento.toLocaleString("en-US",
-                                                    {
-                                                        month: "short",
-                                                        year: "numeric"
-                                                    }
-                                                )}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold text-foreground">{paymentMethod.codigo_seguridad}</p>
-                                            </div>
-                                        </div>
+                                <div className="border border-border rounded-xl p-6 bg-card">
+                                    <div className="card-container">
+                                        <table className="w-full text-left text-sm">
+                                            <thead>
+                                                <tr className="border-b">
+                                                    <th className="py-2 pr-4 w-28">Preferido</th>
+                                                    <th className="py-2 pr-4 w-40">Marca</th>
+                                                    <th className="py-2 pr-4 w-48">Últimos dígitos</th>
+                                                    <th className="py-2 pr-4 w-48">Fecha de vencimiento</th>
+                                                    <th className="py-2 text-right w-32">Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {debitMethods.map((paymentMethod, index) => (
+                                                    <tr key={index}>
+                                                        <td className="preferida-col py-2 pr-4 align-middle">
+                                                            <input type="radio" name="prefer-debit" onChange={() => setEsPredeterminado(true)}/>
+                                                        </td>
+                                                        <td className="py-2 pr-4 align-middle">
+                                                            <div className="flex items-center gap-2">
+                                                                {paymentMethod.marca === Marcas.Visa && (
+                                                                    <Image src={Visa} alt="Visa" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Mastercard && (
+                                                                    <Image src={Mastercard} alt="Mastercard" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.AmericanExpress && (
+                                                                    <Image src={AmericanExpress} alt="American Express" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Discover && (
+                                                                    <Image src={Discover} alt="Discover" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.UnionPay && (
+                                                                    <Image src={UnionPay} alt="Union Pay" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.Jcb && (
+                                                                    <Image src={JCB} alt="JCB" width={32} height={20} className="w-8 h-auto" />
+                                                                )}
+                                                                {paymentMethod.marca === Marcas.DinersClubInternational && (
+                                                                    <Image
+                                                                        src={DinersClubInternational}
+                                                                        alt="Diners Club"
+                                                                        width={32}
+                                                                        height={20}
+                                                                        className="w-8 h-auto"
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="ultimos-digitos-col py-2 pr-4 align-middle">
+                                                            xxxx xxxx xxxx {paymentMethod.ultimos_digitos.toString().slice(-4)}
+                                                        </td>
+                                                        <td className="fecha-vencimiento-col py-2 pr-4 align-middle">
+                                                            {paymentMethod.fecha_vencimiento.toLocaleString("en-US",
+                                                            {
+                                                                month: "short",
+                                                                year: "numeric"
+                                                            }
+                                                        )}
+                                                        </td>
+                                                        <td className="py-2 text-right align-middle">
+                                                            <Button
+                                                                id="delete-debit-card"
+                                                                variant="outline"
+                                                                size="icon"
+                                                                className="ml-2 cursor-pointer"
+                                                                onClick={() => {
+                                                                    setMethodPageToDelete({
+                                                                        id_metodo_pago: paymentMethod.id_metodo_pago,
+                                                                        tipo: paymentMethod.tipo
+                                                                    })
+                                                                    setIsConfirmDeleteOpen(true)
+                                                                }}>
+                                                                <Trash className="w-4 h-4 mr-1" />
+                                                            
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                ))}
+                                </div>
+
+                                <div className="flex justify-end">
+                                    <Button
+                                        className="ml-2"
+                                        onClick={() => openMethodModal("D")}>
+                                        <Plus className="w-4 h-4 mr-1" />
+                                        Agregar Tarjeta
+                                    </Button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -312,41 +479,110 @@ export default function PaymentMethodsPage() {
                 </p>
                 <form onSubmit={handlePaymentMethodSubmit} className="space-y-4" >
                     <div>
-                        <Label className="block text-sm font-medium text-foreground mb-2">Marca</Label>
-                        <div className="flex items-center gap-2 mb-2">
-                            {marca === Marcas.Visa && (
-                                <Image
-                                    src={Visa}
-                                    alt="Visa"
-                                    width={32}
-                                    height={20}
-                                    className="w-8 h-auto mr-1"
-                                />
-                            )}
+                            <div className="relative">
+                            <Input
+                                type="text"
+                                value={ultimos_digitos}
+                                className="pr-16"
+                                onChange={(e) => {
+                                    const raw = e.target.value
+                                    const digitsOnly = raw.replace(/\D/g, "")
+
+                                    // Formatear en grupos de 4: 0000 0000 0000 0000
+                                    const groups = digitsOnly.match(/.{1,4}/g) || []
+                                    const formatted = groups.join(" ")
+                                    setUltimosDigitos(formatted)
+
+                                    const firstDigit = digitsOnly.charAt(0)
+                                    const firstTwoDigits = digitsOnly.slice(0, 2)
+                                    const firstThreeDigits = digitsOnly.slice(0, 3)
+
+                                    if (firstDigit === "4") {
+                                        setMarca(Marcas.Visa)
+                                    } else if (firstDigit === "5") {
+                                        setMarca(Marcas.Mastercard)
+                                    } else if (firstTwoDigits === "34" || firstTwoDigits === "37") {
+                                        setMarca(Marcas.AmericanExpress)
+                                    } else if (firstThreeDigits === "604" || firstThreeDigits === "622" || firstThreeDigits === "644" || firstThreeDigits === "645" || firstThreeDigits === "646" || firstThreeDigits === "647" || firstThreeDigits === "648" || firstThreeDigits === "649" || firstThreeDigits === "65") {
+                                        setMarca(Marcas.Discover)
+                                    } else if (firstTwoDigits === "62") {
+                                        setMarca(Marcas.UnionPay)
+                                    } else if (firstThreeDigits === "352" || firstThreeDigits === "353" || firstThreeDigits === "354" || firstThreeDigits === "355" || firstThreeDigits === "356" || firstThreeDigits === "357" || firstThreeDigits === "358" || firstThreeDigits === "359") {
+                                        setMarca(Marcas.Jcb)
+                                    } else if (firstTwoDigits === "36" || firstTwoDigits === "38" || firstThreeDigits === "300" || firstThreeDigits === "301" || firstThreeDigits === "302" || firstThreeDigits === "303" || firstThreeDigits === "304" || firstThreeDigits === "305" || firstThreeDigits === "306" || firstThreeDigits === "307" || firstThreeDigits === "308" || firstThreeDigits === "309") {
+                                        setMarca(Marcas.DinersClubInternational)
+                                    } else {
+                                        setMarca("")
+                                    }
+                                }}
+                                placeholder="0000 0000 0000 0000"
+                            />
+                            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center gap-2">
+                                {marca === Marcas.Visa && (
+                                    <Image
+                                        src={Visa}
+                                        alt="Visa"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.Mastercard && (
+                                    <Image
+                                        src={Mastercard}
+                                        alt="Mastercard"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.AmericanExpress && (
+                                    <Image
+                                        src={AmericanExpress}
+                                        alt="American Express"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.Discover && (
+                                    <Image
+                                        src={Discover}
+                                        alt="Discover"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.UnionPay && (
+                                    <Image
+                                        src={UnionPay}
+                                        alt="Union Pay"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.Jcb && (
+                                    <Image
+                                        src={JCB}
+                                        alt="JCB"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                                {marca === Marcas.DinersClubInternational && (
+                                    <Image
+                                        src={DinersClubInternational}
+                                        alt="Diners Club"
+                                        width={32}
+                                        height={20}
+                                        className="w-8 h-auto mr-1"
+                                    />
+                                )}
+                            </div>
                         </div>
-
-                        <Label> Numero de tarjeta</Label>
-                        <Input
-                            type="text"
-                            value={ultimos_digitos}
-                            onChange={(e) => {
-                                const raw = e.target.value
-                                const digitsOnly = raw.replace(/\D/g, "")
-
-                                // Formatear en grupos de 4: 0000 0000 0000 0000
-                                const groups = digitsOnly.match(/.{1,4}/g) || []
-                                const formatted = groups.join(" ")
-                                setUltimosDigitos(formatted)
-
-                                const firstDigit = digitsOnly.charAt(0)
-                                if (firstDigit === "4") {
-                                    setMarca(Marcas.Visa)
-                                } else {
-                                    setMarca("")
-                                }
-                            }}
-                            placeholder="0000 0000 0000 0000"
-                        />
 
                     </div>
                     <div>
@@ -387,19 +623,66 @@ export default function PaymentMethodsPage() {
                     <div className="flex justify-end mt-4">
                         <Button
                             type="button"
+                            className="cursor-pointer"
                             onClick={() => { setIsMethodModalOpen(false); resetForm() }}
                         >
                             Cancelar
                         </Button>
                         <Button
                             type="submit"
-                            className="ml-2"
+                            className="ml-2 cursor-pointer"
                             disabled={saving}
                         >
                             {saving ? "Guardando..." : "Guardar"}
                         </Button>
                     </div>
                 </form>
+            </Modal>
+
+
+            <Modal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => {
+                    setIsConfirmDeleteOpen(false)
+                    setMethodPageToDelete(null)
+                }}
+            >
+                <h3 className="text-lg font-semibold mb-2">Eliminar dirección</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                    ¿Estás seguro de que deseas eliminar el medio de pago
+                    {" "}
+                    <span className="font-semibold">
+                        {methodPageToDelete?.tipo ?? "seleccionada"}
+                    </span>
+                    ? Esta acción no se puede deshacer.
+                </p>
+                <div className="flex justify-end gap-2 mt-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="cursor-pointer"
+                        onClick={() => {
+                            setIsConfirmDeleteOpen(false)
+                            setMethodPageToDelete(null)
+                        }}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        disabled={saving}
+                        className="cursor-pointer"
+                        onClick={async () => {
+                            if (!methodPageToDelete) return
+                            await handleDeletePaymentMethod(methodPageToDelete.id_metodo_pago)
+                            setIsConfirmDeleteOpen(false)
+                            setMethodPageToDelete(null)
+                        }}
+                    >
+                        Eliminar
+                    </Button>
+                </div>
             </Modal>
         </div>
     )
