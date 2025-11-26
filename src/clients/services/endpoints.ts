@@ -6,4 +6,6 @@ export const CLIENT_ENDPOINTS = {
   updatePhone: "/users/update_telefono",
   insertDirection: "/users/insertar_direccion",
   deleteDirection: "/users/eliminar_direccion",
+  insertPaymentMethod: "/users/insertar_metodo_pago",
+  deletePaymentMethod: "/users/eliminar_metodo_pago",
 } as const;

@@ -159,6 +159,22 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
             data: { id_direccion },
         });
     },
+
+    async insertPaymentMethod(payload: { tipo: "C" | "D"; marca: string; ultimos_digitos: string; fecha_vencimiento: string; codigo_seguridad: string; es_predeterminado: boolean }) {
+        const response = await API_CLIENT.post<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.insertPaymentMethod, payload);
+
+        return response.data;
+    },
+
+    async deletePaymentMethod(id_metodo_pago: number) {
+        return API_CLIENT.delete(CLIENT_ENDPOINTS.deletePaymentMethod, {
+            data: { id_metodo_pago },
+        });
+    },
 })
 
 
