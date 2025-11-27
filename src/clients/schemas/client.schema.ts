@@ -31,7 +31,8 @@ export const ClientMethodPaymentSchema = z.object({
     ultimos_digitos: z.string(),
     fecha_vencimiento: z.date(),
     codigo_seguridad: z.string(),
-    estado: z.string()
+    estado: z.string(),
+    es_predeterminada: z.boolean()
 })
 
 export type ClientMethodPayment = z.infer<typeof ClientMethodPaymentSchema>

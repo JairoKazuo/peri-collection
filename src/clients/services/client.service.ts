@@ -3,6 +3,8 @@ import { CLIENT_ENDPOINTS } from "./endpoints";
 import { AxiosInstance, AxiosError } from "axios";
 import { ClientPersonalInfo, ClientDirection, ClientMethodPayment } from "../schemas/client.schema";
 
+
+
 export const makeClientService = (API_CLIENT: AxiosInstance) => ({
     async getPersonalInfo() {
         const response = await API_CLIENT.get<{
@@ -98,6 +100,7 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
                     fecha_vencimiento: string; // viene como string desde el backend
                     codigo_seguridad: string;
                     estado: string;
+                    es_predeterminada: boolean;
                 }>;
             }>(CLIENT_ENDPOINTS.getPaymentMethods);
 
@@ -112,6 +115,8 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
                 fecha_vencimiento: new Date(method.fecha_vencimiento),
                 codigo_seguridad: method.codigo_seguridad,
                 estado: method.estado,
+                es_predeterminada: method.es_predeterminada
+                
             }));
 
             return mapped;
@@ -179,6 +184,27 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
             data: { id_metodo_pago },
         });
     },
+
+    async setDefaultAddress(payload: { id_direccion: number }) {
+        const response = await API_CLIENT.put<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.setDefaultAddress, payload);
+
+        return response.data;
+    },
+
+    async setDefaultPaymentMethod(payload: { id_metodo_pago: number }) {
+        const response = await API_CLIENT.put<{
+            status: string;
+            code: number;
+            message: string;
+        }>(CLIENT_ENDPOINTS.setDefaultPaymentMethod, payload);
+
+        return response.data;
+    },
+
 })
 
 

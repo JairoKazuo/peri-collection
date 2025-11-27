@@ -60,6 +60,7 @@ export default function PaymentMethodsPage() {
     const [codigo_seguridad, setCodigoSeguridad] = useState("")
     const [es_predeterminado, setEsPredeterminado] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [isSettingDefault, setIsSettingDefault] = useState(false)
     const [paymentMethodError, setPaymentMethodError] = useState<string | null>(null)
     const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
     const [methodPageToDelete, setMethodPageToDelete] = useState<{
@@ -150,6 +151,20 @@ export default function PaymentMethodsPage() {
             }
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleSetDefaultPaymentMethod = async (id_metodo_pago: number) => {
+        try {
+            setIsSettingDefault(true)
+            await clientService.setDefaultPaymentMethod({ id_metodo_pago })
+            if (typeof window !== "undefined") {
+                window.location.reload()
+            }
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setIsSettingDefault(false)
         }
     }
 
@@ -263,7 +278,15 @@ export default function PaymentMethodsPage() {
                                         <table className="w-full text-left text-sm">
                                             <thead>
                                                 <tr className="border-b">
-                                                    <th className="py-2 pr-4 w-28">Preferido</th>
+                                                    <th className="py-2 pr-4 w-28">
+                                                        <div className="flex items-center gap-2">
+                                                            <span>Preferido</span>
+                                                            {isSettingDefault && (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            )}
+                                                        </div>
+                                                    </th>
+
                                                     <th className="py-2 pr-4 w-40">Marca</th>
                                                     <th className="py-2 pr-4 w-48">Últimos dígitos</th>
                                                     <th className="py-2 pr-4 w-48">Fecha de vencimiento</th>
@@ -274,8 +297,15 @@ export default function PaymentMethodsPage() {
                                                 {creditMethods.map((paymentMethod, index) => (
                                                     <tr key={index}>
                                                         <td className="preferida-col py-2 pr-4 align-middle">
-                                                            <input type="radio" name="prefer" onChange={() => setEsPredeterminado(true)}/>
+                                                            <input
+                                                                type="radio"
+                                                                name="prefer-payment-method"
+                                                                checked={paymentMethod.es_predeterminada}
+                                                                disabled={isSettingDefault}
+                                                                onChange={() => handleSetDefaultPaymentMethod(paymentMethod.id_metodo_pago)}
+                                                            />
                                                         </td>
+
                                                         <td className="py-2 pr-4 align-middle">
                                                             <div className="flex items-center gap-2">
                                                                 {paymentMethod.marca === Marcas.Visa && (
@@ -380,7 +410,15 @@ export default function PaymentMethodsPage() {
                                         <table className="w-full text-left text-sm">
                                             <thead>
                                                 <tr className="border-b">
-                                                    <th className="py-2 pr-4 w-28">Preferido</th>
+                                                    <th className="py-2 pr-4 w-28">
+                                                        <div className="flex items-center gap-2">
+                                                            <span>Preferido</span>
+                                                            {isSettingDefault && (
+                                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                            )}
+                                                        </div>
+                                                    </th>
+
                                                     <th className="py-2 pr-4 w-40">Marca</th>
                                                     <th className="py-2 pr-4 w-48">Últimos dígitos</th>
                                                     <th className="py-2 pr-4 w-48">Fecha de vencimiento</th>
@@ -391,8 +429,15 @@ export default function PaymentMethodsPage() {
                                                 {debitMethods.map((paymentMethod, index) => (
                                                     <tr key={index}>
                                                         <td className="preferida-col py-2 pr-4 align-middle">
-                                                            <input type="radio" name="prefer-debit" onChange={() => setEsPredeterminado(true)}/>
+                                                            <input 
+                                                                type="radio"
+                                                                name="prefer-payment-method"
+                                                                checked={paymentMethod.es_predeterminada}
+                                                                disabled={isSettingDefault}
+                                                                onChange={() => handleSetDefaultPaymentMethod(paymentMethod.id_metodo_pago)}
+                                                            />
                                                         </td>
+
                                                         <td className="py-2 pr-4 align-middle">
                                                             <div className="flex items-center gap-2">
                                                                 {paymentMethod.marca === Marcas.Visa && (
@@ -483,6 +528,7 @@ export default function PaymentMethodsPage() {
                             <Input
                                 type="text"
                                 value={ultimos_digitos}
+                                maxLength={19}
                                 className="pr-16"
                                 onChange={(e) => {
                                     const raw = e.target.value
