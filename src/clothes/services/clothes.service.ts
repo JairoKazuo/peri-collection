@@ -1,12 +1,37 @@
 import { AxiosError, AxiosInstance } from "axios";
-
-import { ClothesMainCatalog } from "../schemas/clothes.schema";
+import { ClothesMainCatalog } from "../schemas/clothes.schema"; // Asegúrate que esta ruta sea correcta en tu proyecto
 import { CLOTHES_ENDPOINTS } from "./endpoints";
 
+// 1. Definimos la interfaz de los filtros (Tipado fuerte)
+export interface CatalogFilters {
+  busqueda?: string;
+  categorias?: string[];
+  colores?: string[];
+  tallas?: string[];
+  precioMin?: number;
+  precioMax?: number;
+}
+
 export const makeClothesService = (API_CLOTHES: AxiosInstance) => ({
-  async getMainCatalog(): Promise<ClothesMainCatalog[]> {
+  // 2. Agregamos el argumento 'filters' opcional
+  async getMainCatalog(filters: CatalogFilters = {}): Promise<ClothesMainCatalog[]> {
 
     try {
+      // 3. Transformamos los filtros en parámetros de URL
+      const queryParams: any = {};
+
+      if (filters.busqueda) queryParams.busqueda = filters.busqueda;
+      
+      // Convertimos Arrays a String separado por comas (Backend espera: "Rojo,Azul")
+      if (filters.categorias?.length) queryParams.categorias = filters.categorias.join(',');
+      if (filters.colores?.length) queryParams.colores = filters.colores.join(',');
+      if (filters.tallas?.length) queryParams.tallas = filters.tallas.join(',');
+
+      // Precios
+      if (filters.precioMin !== undefined) queryParams.precioMin = filters.precioMin;
+      if (filters.precioMax !== undefined) queryParams.precioMax = filters.precioMax;
+
+      // 4. Hacemos la petición pasando los 'params'
       const response = await API_CLOTHES.get<{
         status: string;
         code: number;
@@ -15,15 +40,18 @@ export const makeClothesService = (API_CLOTHES: AxiosInstance) => ({
           id_prenda: number;
           categoria_prenda: string;
           nombre_prenda: string;
-          precio_prenda: string; // viene como string
+          precio_prenda: string;
           imagen_prenda: string;
         }>;
-      }>(CLOTHES_ENDPOINTS.getMainCatalog);
+      }>(CLOTHES_ENDPOINTS.getMainCatalog, { 
+        params: queryParams // <--- AQUÍ SE ENVÍAN LOS FILTROS
+      });
 
-      console.log("Respuesta cruda de /catalogo:", response.data);
+      // console.log("Respuesta del backend:", response.data);
 
       const raw = response.data?.prendas ?? [];
 
+      // 5. Mapeo de datos (Tu lógica original)
       const mapped: ClothesMainCatalog[] = raw.map((item) => ({
         id_prenda: item.id_prenda,
         categoria_prendas: item.categoria_prenda,
@@ -32,16 +60,15 @@ export const makeClothesService = (API_CLOTHES: AxiosInstance) => ({
         url_imagen: item.imagen_prenda,
       }));
 
-      console.log("Productos mapeados en service:", mapped);
-
       return mapped;
+
     } catch (error) {
       const axiosErr = error as AxiosError<any>;
       const statusCode = axiosErr.response?.status;
       const backendCode = (axiosErr.response?.data as any)?.code;
 
-      // Si el backend usa 404 para "catálogo no encontrado", tratamos como lista vacía
-      if (statusCode === 404 && backendCode === 404) {
+      // Manejo de 404 (Si no hay productos con esos filtros, devolvemos lista vacía)
+      if (statusCode === 404 || backendCode === 404) {
         return [];
       }
 
