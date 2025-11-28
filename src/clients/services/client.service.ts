@@ -1,7 +1,7 @@
 import { CLIENT_ENDPOINTS } from "./endpoints";
 
 import { AxiosInstance, AxiosError } from "axios";
-import { ClientPersonalInfo, ClientDirection, ClientMethodPayment } from "../schemas/client.schema";
+import { ClientPersonalInfo, ClientDirection, ClientMethodPayment, ClientOrderRow } from "../schemas/client.schema";
 
 
 
@@ -203,6 +203,17 @@ export const makeClientService = (API_CLIENT: AxiosInstance) => ({
         }>(CLIENT_ENDPOINTS.setDefaultPaymentMethod, payload);
 
         return response.data;
+    },
+
+    async getOrders() {
+        const response = await API_CLIENT.get<{
+            status: string;
+            code: number;
+            message: string;
+            data: ClientOrderRow[];
+        }>(CLIENT_ENDPOINTS.getOrders);
+
+        return response.data.data ?? [];
     },
 
 })

@@ -1,10 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Trash2 } from "lucide-react"
 import { useFetchDetailCart, useUpdateQuantityDetailCart, useSummaryCart, useDeleteDetailCart } from "@/hooks/useFetchDetailCart"
 import type { DetailCart } from "@/clients/schemas/carrito.schema"
+import { useCheckout } from "@/hooks/useCheckout"
+import { useFetchClientsInfo } from "@/hooks/useFetchClients"
 
 export default function CartPage() {
 
@@ -12,6 +15,9 @@ export default function CartPage() {
   const { updateQuantity, isUpdating } = useUpdateQuantityDetailCart()
   const { deleteItem, isDeleting, error: deleteError } = useDeleteDetailCart()
   const { summary, isLoading: isLoadingSummary, refetchSummary } = useSummaryCart()
+  const { processCheckout, isProcessing } = useCheckout()
+  const { directions } = useFetchClientsInfo()
+  const router = useRouter()
 
   const handleUpdateQuantity = async (
     item: { id_detalle: number; cantidad: number; stock_actual: number },
@@ -54,6 +60,28 @@ export default function CartPage() {
   const tax = summary?.impuesto ?? subtotal * 0.18
   const total = summary?.total ?? subtotal + shipping + tax
 
+  const handleCheckout = async () => {
+    const defaultDirection =
+      directions.find((d) => d.es_predeterminada) ?? directions[0]
+
+    if (!defaultDirection) {
+      // No hay dirección registrada; por ahora no procesamos checkout
+      return
+    }
+
+    const idPedido = await processCheckout({
+      id_direccion: defaultDirection.id_direccion,
+      costo_envio: shipping,
+    })
+
+    if (idPedido) {
+      router.push(`/customer/checkout/envio?id_pedido=${idPedido}`)
+    } else {
+      // Si hubo error en el backend, al menos navegar al checkout genérico
+      router.push("/customer/checkout/envio")
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-foreground mb-8">Mi Carrito</h1>
@@ -78,6 +106,7 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
+
             {items.map((item) => (
               <div key={item.id_variante} className="border border-border rounded-xl p-6 flex gap-6">
                 <div className="w-24 h-24 bg-secondary rounded-lg flex items-center justify-center flex-shrink-0">
@@ -147,11 +176,13 @@ export default function CartPage() {
               <span>Total</span>
               <span>S/ {total.toFixed(2)}</span>
             </div>
-            <Link href="/customer/checkout">
-              <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium">
-                Proceder al Pago
-              </Button>
-            </Link>
+            <Button
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium"
+              onClick={handleCheckout}
+              disabled={isProcessing}
+            >
+              Proceder al Pago
+            </Button>
             <Link href="/customer/catalog">
               <Button variant="outline" className="w-full mt-3 bg-transparent">
                 Continuar Comprando

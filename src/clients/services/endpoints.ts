@@ -9,7 +9,8 @@ export const CLIENT_ENDPOINTS = {
   insertPaymentMethod: "/users/insertar_metodo_pago",
   deletePaymentMethod: "/users/eliminar_metodo_pago",
   setDefaultAddress: "/users/hacer_predeterminado_direccion",
-  setDefaultPaymentMethod: "/users/hacer_predeterminado_metodo_pago"
+  setDefaultPaymentMethod: "/users/hacer_predeterminado_metodo_pago",
+  getOrders: "/users/historial_pedidos",
 } as const;
 
 
@@ -20,4 +21,15 @@ export const CARRITO_ENDPOINTS = {
   summaryCart: "/users/resumen_carrito",
 
 
+} as const;
+
+
+export const CHECKOUT_ENDPOINTS = {
+  processCheckout: "/users/procesar_checkout",
+  getDetailCheckout: "/users/obtener_pedido/:id",
+  updateDirection: "/users/cambiar_direccion_pedido",
+  updateShip: "/users/actualizar_envio_pedido",
+  validateShip: "/users/obtener_validacion_pedido/:id/validar-paso-envio",
+  setPayment: "/users/realizar_cobro",
+  generatePayment: "/users/generar_boleta/:id",
 } as const;

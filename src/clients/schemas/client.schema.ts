@@ -36,3 +36,20 @@ export const ClientMethodPaymentSchema = z.object({
 })
 
 export type ClientMethodPayment = z.infer<typeof ClientMethodPaymentSchema>
+
+export const ClientOrderRowSchema = z.object({
+    pedido_id: z.number(),
+    fecha_compra: z.string(),
+    estado_pedido: z.string(),
+    total_pedido: z.string(),
+    moneda: z.string(),
+    codigo_boleta: z.string().nullable(),
+    item_nombre: z.string(),
+    item_talla: z.string(),
+    item_color: z.string(),
+    item_cantidad: z.number(),
+    item_precio: z.string(),
+    item_imagen: z.string(),
+})
+
+export type ClientOrderRow = z.infer<typeof ClientOrderRowSchema>
