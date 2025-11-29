@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "concurrently \"next dev\" \"npm run dev --prefix peri-collection-backend\"",
+    "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },
@@ -73,6 +73,7 @@
     "@types/react-dom": "^19",
     "concurrently": "^9.2.1",
     "postcss": "^8.5",
+    "string-width": "^4.2.3",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5.9.3"
