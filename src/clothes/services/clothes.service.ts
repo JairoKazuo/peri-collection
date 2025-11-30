@@ -1,5 +1,5 @@
 import { AxiosError, AxiosInstance } from "axios";
-import { ClothesMainCatalog } from "../schemas/clothes.schema"; // Asegúrate que esta ruta sea correcta en tu proyecto
+import { ClothesMainCatalog, ClothesProductDetail } from "../schemas/clothes.schema"; // Asegúrate que esta ruta sea correcta en tu proyecto
 import { CLOTHES_ENDPOINTS } from "./endpoints";
 
 // 1. Definimos la interfaz de los filtros (Tipado fuerte)
@@ -74,5 +74,59 @@ export const makeClothesService = (API_CLOTHES: AxiosInstance) => ({
 
       throw error;
     }
+  },
+
+  async getProductById(id: number): Promise<ClothesProductDetail> {
+    const response = await API_CLOTHES.get<{
+      status: string;
+      code: number;
+      message: string;
+      respuestaFormateado: {
+        producto: {
+          id_prenda: string;
+          nombre_prenda: string;
+          descripcion_prenda: string;
+          categoria_prendas: string;
+          precio_prenda: string;
+          stats: {
+            calificacion: number;
+            total_reseñas: number;
+          };
+          url_imagen: string[];
+        };
+        variantes: Array<{
+          id_variante: number;
+          color: string;
+          talla: string;
+          stock: string;
+        }>;
+      };
+    }>(CLOTHES_ENDPOINTS.getProductById(id));
+
+    const { producto, variantes } = response.data.respuestaFormateado;
+
+    const mapped: ClothesProductDetail = {
+      producto: {
+        id_prenda: Number(producto.id_prenda),
+        nombre_prenda: producto.nombre_prenda,
+        descripcion_prenda: producto.descripcion_prenda,
+        categoria_prendas: producto.categoria_prendas,
+        precio_prenda: Number(producto.precio_prenda),
+        // url_imagen viene ya como array en el detalle
+        url_imagen: producto.url_imagen,
+        stats: {
+          calificacion: producto.stats.calificacion,
+          total_reseñas: producto.stats.total_reseñas,
+        },
+      },
+      variantes: variantes.map((v) => ({
+        id_variante: v.id_variante,
+        color: v.color,
+        talla: v.talla,
+        stock: Number(v.stock),
+      })),
+    };
+
+    return mapped;
   },
 });

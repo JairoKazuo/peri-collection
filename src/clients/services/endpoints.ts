@@ -19,6 +19,7 @@ export const CARRITO_ENDPOINTS = {
   updateQuantityDetailCart: "/users/actualizar_cantidad_detalle_carrito",
   deleteDetailCart: "/users/eliminar_detalle_carrito",
   summaryCart: "/users/resumen_carrito",
+  addDetailCart: "/users/anadir_prenda_carrito",
 
 
 } as const;

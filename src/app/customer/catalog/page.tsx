@@ -289,45 +289,49 @@ export default function CatalogPage() {
           ) : (
              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {productos.map((product) => (
-                <Link key={product.id_prenda} href={`/customer/product/${product.id_prenda}`}>
-                  <div className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-white">
-                    
-                    {/* Imagen */}
-                    <div className="w-full h-80 bg-gray-100 relative overflow-hidden">
-                       {product.url_imagen && !product.url_imagen.includes("placeholder") ? (
-                         <img 
-                           src={product.url_imagen} 
-                           alt={product.nombre_prenda} 
-                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} 
-                         />
-                       ) : (
-                         <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-50">👗</div>
-                       )}
-                       
-                        {/* Overlay Botón */}
-                        <div className="absolute inset-x-0 bottom-4 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                             <button className="w-full bg-white text-black font-bold py-3 text-sm uppercase tracking-widest shadow-lg hover:bg-black hover:text-white transition-colors">
-                               Ver Producto
-                             </button>
-                        </div>
-                    </div>
+                <div
+                  key={product.id_prenda}
+                  className="border border-gray-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-white"
+                >
+                  {/* Imagen */}
+                  <div className="w-full h-80 bg-gray-100 relative overflow-hidden">
+                    {product.url_imagen && !product.url_imagen.includes("placeholder") ? (
+                      <img
+                        src={product.url_imagen}
+                        alt={product.nombre_prenda}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-4xl bg-gray-50">👗</div>
+                    )}
 
-                    <div className="p-5">
-                      <p className="text-xs text-orange-500 font-bold mb-2 uppercase tracking-widest">
-                        {product.categoria_prendas}
-                      </p>
-                      <h3 className="font-bold text-gray-900 mb-2 truncate group-hover:text-orange-500 transition-colors">
-                        {product.nombre_prenda}
-                      </h3>
-                      <div className="flex items-center justify-between border-t pt-3 border-gray-100">
-                        <span className="text-lg font-bold text-gray-900">
-                          S/ {typeof product.precio_prenda === 'number' ? product.precio_prenda.toFixed(2) : product.precio_prenda}
-                        </span>
-                      </div>
+                    {/* Overlay Botón */}
+                    <div className="absolute inset-x-0 bottom-4 px-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Link href={`/customer/product/${product.id_prenda}`}>
+                        <button className="w-full bg-white text-black font-bold py-3 text-sm uppercase tracking-widest shadow-lg hover:bg-black hover:text-white transition-colors">
+                          Ver Producto
+                        </button>
+                      </Link>
                     </div>
                   </div>
-                </Link>
+
+                  <div className="p-5">
+                    <p className="text-xs text-orange-500 font-bold mb-2 uppercase tracking-widest">
+                      {product.categoria_prendas}
+                    </p>
+                    <h3 className="font-bold text-gray-900 mb-2 truncate group-hover:text-orange-500 transition-colors">
+                      {product.nombre_prenda}
+                    </h3>
+                    <div className="flex items-center justify-between border-t pt-3 border-gray-100">
+                      <span className="text-lg font-bold text-gray-900">
+                        S/ {typeof product.precio_prenda === 'number' ? product.precio_prenda.toFixed(2) : product.precio_prenda}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           )}

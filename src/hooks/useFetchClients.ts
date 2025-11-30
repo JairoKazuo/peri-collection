@@ -52,10 +52,17 @@ export function useFetchClientsInfo(): UseFetchClientsInfoState {
         if (cancelled) return
 
         const axiosErr = err as AxiosError<any>
-        const msg =
-          (axiosErr.response as any)?.data?.message ||
-          axiosErr.message ||
-          "Error al obtener datos del cliente"
+        const backendMessage = (axiosErr.response as any)?.data?.message;
+        const msg = backendMessage || axiosErr.message || "Error al obtener datos del cliente";
+
+        if (backendMessage === "Acceso denegado. Se requiere iniciar sessión"){
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("user")
+            window.location.href = "/auth/login"
+          }
+          return;
+        }
+
         setError(msg)
       } finally {
         if (!cancelled) {

@@ -7,6 +7,7 @@ import { useState } from "react"
 
 export function CustomerHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [cartPopoverOpen, setCartPopoverOpen] = useState(false)
 
   return (
     <header className="border-b border-border bg-card sticky top-0 z-50">
@@ -37,12 +38,59 @@ export function CustomerHeader() {
                 <span className="text-sm">Mi Cuenta</span>
               </Button>
             </Link>
-            <Link href="/customer/cart">
-              <Button variant="ghost" size="sm" className="gap-2">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                onClick={() => setCartPopoverOpen((open) => !open)}
+              >
                 <ShoppingCart className="w-5 h-5" />
                 <span className="text-sm">Carrito</span>
               </Button>
-            </Link>
+
+              {cartPopoverOpen && (
+                <div className="absolute right-0 mt-2 w-80 max-h-96 bg-background border border-border rounded-lg shadow-lg flex flex-col z-50">
+                  <div className="absolute -top-2 right-6 w-4 h-4 bg-background border-l border-t border-border rotate-45" />
+
+                  <div className="pt-3 px-4 pb-2 border-b border-border">
+                    <p className="font-semibold text-foreground text-sm">Carrito</p>
+                  </div>
+                  <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground">
+                    Variantes añadidas a tu carrito:
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 text-sm max-h-56">
+                    <div className="border border-border rounded-md p-2 flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-foreground truncate">Nombre de prenda</span>
+                        <span className="text-xs text-muted-foreground">x1</span>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Color: Ejemplo</span>
+                        <span>Talla: M</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>ID variante: 0000</span>
+                        <span className="font-semibold text-foreground">S/ 0.00</span>
+                      </div>
+                    </div>
+                    <div className="border border-dashed border-border rounded-md p-2 text-xs text-muted-foreground text-center">
+                      Aquí se listarán las variantes reales del carrito.
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 border-t border-border flex items-center justify-between text-sm bg-secondary/40">
+                    <span className="text-muted-foreground">Total estimado</span>
+                    <Link
+                      href="/customer/cart"
+                      className="text-xs text-primary hover:underline font-medium"
+                      onClick={() => setCartPopoverOpen(false)}
+                    >
+                      Ir a Carrito
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
@@ -73,12 +121,58 @@ export function CustomerHeader() {
                 Mi Cuenta
               </Button>
             </Link>
-            <Link href="/customer/cart" className="block">
-              <Button variant="ghost" className="w-full justify-start gap-2 text-sm">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="w-full justify-start gap-2 text-sm"
+                onClick={() => setCartPopoverOpen((open) => !open)}
+              >
                 <ShoppingCart className="w-5 h-5" />
                 Carrito
               </Button>
-            </Link>
+
+              {cartPopoverOpen && (
+                <div className="absolute right-0 mt-2 w-80 max-h-96 bg-background border border-border rounded-lg shadow-lg flex flex-col z-50">
+                  <div className="absolute -top-2 right-6 w-4 h-4 bg-background border-l border-t border-border rotate-45" />
+
+                  <div className="pt-3 px-4 pb-2 border-b border-border">
+                    <p className="font-semibold text-foreground text-sm">Carrito</p>
+                  </div>
+                  <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground">
+                    Variantes añadidas a tu carrito:
+                  </div>
+                  <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2 text-sm max-h-56">
+                    <div className="border border-border rounded-md p-2 flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-foreground truncate">Nombre de prenda</span>
+                        <span className="text-xs text-muted-foreground">x1</span>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Color: Ejemplo</span>
+                        <span>Talla: M</span>
+                      </div>
+                      <div className="flex justify-between items-center text-xs text-muted-foreground">
+                        <span>ID variante: 0000</span>
+                        <span className="font-semibold text-foreground">S/ 0.00</span>
+                      </div>
+                    </div>
+                    <div className="border border-dashed border-border rounded-md p-2 text-xs text-muted-foreground text-center">
+                      Aquí se listarán las variantes reales del carrito.
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 border-t border-border flex items-center justify-between text-sm bg-secondary/40">
+                    <span className="text-muted-foreground">Total estimado</span>
+                    <Link
+                      href="/customer/cart"
+                      className="text-xs text-primary hover:underline font-medium"
+                      onClick={() => setCartPopoverOpen(false)}
+                    >
+                      Ir a Carrito
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

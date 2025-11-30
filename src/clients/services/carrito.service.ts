@@ -5,6 +5,23 @@ import { DetailCart } from "../schemas/carrito.schema"
 
 
 export const makeCarritoService = (API_CLIENT: AxiosInstance) => ({
+    async addDetailCart(params: { id_variante: number; cantidad: number }) {
+        const response = await API_CLIENT.post<{
+            status: string; 
+            code: number; 
+            message: string; 
+        }>(CARRITO_ENDPOINTS.addDetailCart, params);
+
+        
+
+        return {
+            status: response.data.status,
+            code: response.data.code,
+            message: response.data.message,
+        };
+    },
+
+
     async getDetailCart() {
         const response = await API_CLIENT.get<{
                     status: string;

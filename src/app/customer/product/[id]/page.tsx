@@ -1,30 +1,128 @@
 "use client"
 
-import { useState, use } from "react"
+import { useState, use, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Heart, Share2, ChevronLeft, ChevronRight } from "lucide-react"
+import { useProductDetail } from "@/hooks/useProductDetail"
+import { useAddToCart } from "@/hooks/useAddToCart"
+import nearestColor from "nearest-color"
+
+
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
-  const [selectedSize, setSelectedSize] = useState("M")
-  const [quantity, setQuantity] = useState(1)
+  const numericId = Number(resolvedParams.id)
+  const { product: detail, isLoading, error } = useProductDetail(Number.isNaN(numericId) ? null : numericId)
+  const { addToCart, error: addToCartError, isLoading: isAddingToCart } = useAddToCart()
+
+  const [selectedSize, setSelectedSize] = useState("")
+  console.log("Talla seleccionada: ", selectedSize)
+  const [selectedColor, setSelectedColor] = useState("")
+  console.log("Color seleccionado: ", selectedColor)
+  const [quantity,  setQuantity] = useState(1)
+  console.log("Cantidad seleccionada: ", quantity)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [localError, setLocalError] = useState<string | null>(null)
+
+  const coloresBase = {
+    'Negro': '#000000',
+    'Blanco': '#FFFFFF',
+    'Rojo': '#FF0000',
+    'Verde': '#008000',
+    'Azul': '#0000FF',
+    'Amarillo': '#FFFF00',
+    'Cian': '#00FFFF',
+    'Magenta': '#FF00FF',
+    'Gris': '#808080',
+    'Naranja': '#FFA500',
+    'Rosa': '#FFC0CB',
+    'Morado': '#800080',
+    'Vino': '#722F37'
+  };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <p>Cargando producto...</p>
+      </div>
+    )
+  }
+
+  if (error || !detail) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <Link href="/customer/catalog" className="text-accent hover:text-accent/90 mb-6 inline-flex items-center gap-1">
+          
+          Volver al catalogo
+        </Link>
+        <p className="text-red-500 mb-2">{error || "No se encontro el producto."}</p>
+      </div>
+    )
+  }
 
   const product = {
-    id: resolvedParams.id,
-    name: "Blazer Clásico Premium",
-    price: "S/ 299",
-    rating: 4.8,
-    reviews: 124,
-    description:
-      "Un blazer clásico y versátil que combina elegancia con comodidad. Perfecto para cualquier ocasión, desde la oficina hasta eventos especiales.",
-    details: ["Material: 100% Algodón Premium", "Forro: Seda Natural", "Cuidado: Lavar en seco", "Origen: Perú"],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Negro", "Blanco", "Azul Marino"],
+    id: detail.producto.id_prenda,
+    name: detail.producto.nombre_prenda,
+    price: `S/ ${detail.producto.precio_prenda.toFixed(2)}`,
+    rating: detail.producto.stats.calificacion,
+    reviews: detail.producto.stats.total_reseñas,
+    description: detail.producto.descripcion_prenda,
+    details: [detail.producto.descripcion_prenda],
+    sizes: Array.from(new Set(detail.variantes.map((v) => v.talla))),
+    colors: Array.from(new Set(detail.variantes.map((v) => v.color)))
   }
 
   const images = ["👗", "👗", "👗", "👗"]
+
+  const buscarColor = nearestColor.from(coloresBase)
+
+  const effectiveSelectedColor =
+    selectedColor || (product.colors.length > 0 ? product.colors[0] : "")
+
+  const selectedVariant = detail.variantes.find(
+    (v) => v.talla === selectedSize && v.color === effectiveSelectedColor
+  );
+
+  const selectedVariantId: number | null = selectedVariant ? selectedVariant.id_variante : null;
+
+  console.log("ID variante seleccionada: ", selectedVariantId)
+
+  const maxQuantity = selectedVariant ? selectedVariant.stock : 0;
+
+  const availableSizesForColor: string[] = effectiveSelectedColor
+    ? Array.from(
+        new Set(
+          detail.variantes
+            .filter((v) => v.color === effectiveSelectedColor)
+            .map((v) => v.talla)
+        )
+      )
+    : product.sizes
+
+  const EtiquetaColor = ({ hexColor }: { hexColor: string }) => {
+    const resultado = buscarColor(hexColor) as { name: string };
+    return (
+      <div className="flex items-center gap-2">
+        {/* El círculo muestra el color REAL exacto de la BD */}
+        <div 
+          style={{ 
+            backgroundColor: hexColor, 
+            width: 24, 
+            height: 24, 
+            borderRadius: '50%',
+            border: '1px solid black',
+          }}
+        />
+
+
+        {/* El texto muestra la aproximación en español */}
+        <p>
+          {resultado.name}
+        </p>
+      </div>
+    ); 
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -93,9 +191,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {product.colors.map((color) => (
                 <button
                   key={color}
-                  className="px-4 py-2 border border-border rounded-lg hover:border-accent transition-colors text-sm"
+                  onClick={() => {
+                    setSelectedColor(color)
+                    setSelectedSize("")
+                  }}
+                  className={`px-4 py-2 border border-border rounded-lg hover:border-accent transition-colors text-sm ${
+                    effectiveSelectedColor === color
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-transparent"
+                  }`}
                 >
-                  {color}
+                  <EtiquetaColor hexColor={color} />
                 </button>
               ))}
             </div>
@@ -105,10 +211,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div>
             <h3 className="font-semibold text-foreground mb-3">Talla</h3>
             <div className="grid grid-cols-5 gap-2">
-              {product.sizes.map((size) => (
+              {availableSizesForColor.map((size) => (
                 <button
                   key={size}
-                  onClick={() => setSelectedSize(size)}
+                  onClick={() => setSelectedSize(prev => prev === size ? "" : size)}
                   className={`py-2 border rounded-lg font-medium transition-all ${
                     selectedSize === size
                       ? "bg-primary text-primary-foreground border-primary"
@@ -124,16 +230,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Quantity */}
           <div>
             <h3 className="font-semibold text-foreground mb-3">Cantidad</h3>
+
+            <p className="text-sm text-muted-foreground mb-1">
+              {selectedVariant
+                ? `Cantidad max: ${maxQuantity}`
+                : "-"
+              }
+            </p>
+
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
+                disabled={!selectedVariant || quantity <= 1}
               >
                 −
               </button>
               <span className="text-lg font-semibold w-8 text-center">{quantity}</span>
               <button
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={() => {
+                  if (quantity < maxQuantity) {
+                    setQuantity(quantity + 1)
+                  }
+                }}
+                disabled={!selectedVariant || quantity >= maxQuantity}
                 className="px-4 py-2 border border-border rounded-lg hover:bg-secondary transition-colors"
               >
                 +
@@ -143,7 +263,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Actions */}
           <div className="space-y-3 pt-4">
-            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium">
+            {(localError || addToCartError) && (
+              <p className="text-sm text-red-500">{localError || addToCartError}</p>
+            )}
+            <Button
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3 font-medium"
+              disabled={isAddingToCart}
+              onClick={async () => {
+                if (!selectedVariantId) {
+                  setLocalError("Seleccione un color y talla antes de agregar al carrito.")
+                  return
+                }
+
+                setLocalError(null)
+                await addToCart({ id_variante: selectedVariantId, cantidad: quantity })
+              }}
+            >
               Agregar al Carrito
             </Button>
             <div className="flex gap-3">

@@ -309,29 +309,29 @@ export default function PaymentMethodsPage() {
                                                         <td className="py-2 pr-4 align-middle">
                                                             <div className="flex items-center gap-2">
                                                                 {paymentMethod.marca === Marcas.Visa && (
-                                                                    <Image src={Visa} alt="Visa" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={Visa} alt="Visa" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.Mastercard && (
-                                                                    <Image src={Mastercard} alt="Mastercard" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={Mastercard} alt="Mastercard" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.AmericanExpress && (
-                                                                    <Image src={AmericanExpress} alt="American Express" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={AmericanExpress} alt="American Express" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.Discover && (
-                                                                    <Image src={Discover} alt="Discover" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={Discover} alt="Discover" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.UnionPay && (
-                                                                    <Image src={UnionPay} alt="Union Pay" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={UnionPay} alt="Union Pay" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.Jcb && (
-                                                                    <Image src={JCB} alt="JCB" width={32} height={20} className="w-8 h-auto" />
+                                                                    <Image src={JCB} alt="JCB" width={100} height={100} className="w-8 h-auto" />
                                                                 )}
                                                                 {paymentMethod.marca === Marcas.DinersClubInternational && (
                                                                     <Image
                                                                         src={DinersClubInternational}
                                                                         alt="Diners Club"
-                                                                        width={32}
-                                                                        height={20}
+                                                                        width={100}
+                                                                        height={100}
                                                                         className="w-8 h-auto"
                                                                     />
                                                                 )}
