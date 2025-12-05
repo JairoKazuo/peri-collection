@@ -9,6 +9,7 @@ import { Plus, Edit2, Trash2, Search, Loader2, AlertCircle } from "lucide-react"
 import { useAdminProducts, useCategories } from "@/hooks/useAdminProducts"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import type { CrearProducto, ProductoAdmin } from "@/products/schemas/product.schema"
+import { HexColorPicker } from "react-colorful"
 
 export default function ProductsPage() {
   const { 
@@ -26,6 +27,7 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isSaving, setIsSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false)
   
   // Form state
   const [formData, setFormData] = useState<CrearProducto>({
@@ -179,7 +181,7 @@ export default function ProductsPage() {
                 <Input
                   id="sku"
                   type="text"
-                  placeholder="Ej: BLZ-001"
+                  placeholder="ID-P-T-XXXXXX"
                   value={formData.sku}
                   onChange={(e) => setFormData({...formData, sku: e.target.value})}
                 />
@@ -236,15 +238,48 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({...formData, talla: e.target.value})}
                 />
               </div>
-              <div>
+              <div className="relative">
                 <Label htmlFor="color" className="text-foreground">Color</Label>
-                <Input
-                  id="color"
-                  type="text"
-                  placeholder="Negro, Azul, etc."
-                  value={formData.color}
-                  onChange={(e) => setFormData({...formData, color: e.target.value})}
-                />
+                <div className="mt-1 flex items-center gap-2">
+                  <Input
+                    id="color"
+                    type="text"
+                    placeholder="Ej: #000000"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                    onClick={() => setIsColorPickerOpen(true)}
+                    readOnly
+                  />
+                  <div
+                    className="h-8 w-8 rounded-md border border-border shadow-sm"
+                    style={{ backgroundColor: formData.color || "#000000" }}
+                  />
+                </div>
+
+                {isColorPickerOpen && (
+                  <>
+                    {/* Capa para cerrar al hacer clic fuera */}
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setIsColorPickerOpen(false)}
+                    />
+
+                    <div
+                      className="absolute z-50 mt-2 rounded-lg border border-border bg-background p-3 shadow-lg"
+                      style={{ minWidth: "220px" }}
+                    >
+                      <HexColorPicker
+                        color={formData.color || "#000000"}
+                        onChange={(color) => setFormData({ ...formData, color })}
+                      />
+                      <input
+                        className="mt-2 w-full rounded-md border border-border px-2 py-1 text-sm bg-background text-foreground"
+                        value={formData.color}
+                        onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
               <div>
                 <Label htmlFor="imagen" className="text-foreground">URL de Imagen</Label>

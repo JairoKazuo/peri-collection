@@ -64,23 +64,24 @@ export default function CartPage() {
     const defaultDirection =
       directions.find((d) => d.es_predeterminada) ?? directions[0]
 
-    if (!defaultDirection) {
-      // No hay dirección registrada; por ahora no procesamos checkout
-      return
-    }
+    // Si hay al menos una dirección, intentamos crear el pedido desde el carrito
+    //if (defaultDirection) {
+      const idPedido = await processCheckout({
+        id_direccion: defaultDirection.id_direccion,
+        costo_envio: shipping,
+      }) 
 
-    const idPedido = await processCheckout({
-      id_direccion: defaultDirection.id_direccion,
-      costo_envio: shipping,
-    })
+      if (idPedido) {
+        router.push(`/customer/checkout/envio?id_pedido=${idPedido}`)
+        return
+      }
+      // Si hubo error en el backend, continuamos igualmente al checkout genérico
+    //}
 
-    if (idPedido) {
-      router.push(`/customer/checkout/envio?id_pedido=${idPedido}`)
-    } else {
-      // Si hubo error en el backend, al menos navegar al checkout genérico
-      router.push("/customer/checkout/envio")
-    }
-  }
+    // Si no hay dirección registrada o falló el proceso en backend,
+    // navegamos igual al checkout para que el usuario complete sus datos
+    router.push("/customer/checkout/envio")
+  } 
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
